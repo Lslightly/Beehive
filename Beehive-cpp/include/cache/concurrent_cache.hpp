@@ -339,6 +339,11 @@ private:
         block->obj_meta_data = far_obj_t::null();
     }
 
+    void deallocate_local_memory(void *ptr) {
+        auto block = static_cast<allocator::BlockHead *>(ptr) - 1;
+        block->obj_meta_data = far_obj_t::null();
+    }
+
     // return true if already at local
     template <bool IncreaseRefCount>
     bool post_fetch(far_obj_t obj, DereferenceScope &scope) {
@@ -372,7 +377,7 @@ private:
             // 2nd: modify state to prevent object to be evacuated
             new_state.state = FETCHING;
             if (!entry.cas_state_weak(old_state, new_state)) {
-                deallocate_local(local_ptr, entry);
+                deallocate_local_memory(local_ptr);
                 signal::enable_signal();
                 goto retry;
             }
@@ -441,7 +446,7 @@ private:
             void *local_ptr = allocate_local(obj.size, obj, scope);
             new_state.state = FETCHING;
             if (!entry.cas_state_weak(old_state, new_state)) {
-                deallocate_local(local_ptr, entry);
+                deallocate_local_memory(local_ptr);
                 signal::enable_signal();
                 goto retry;
             }

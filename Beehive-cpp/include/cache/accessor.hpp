@@ -507,14 +507,18 @@ public:
     // when a new eviction phase starts, LiteAccessors should be pinned
     void pin() const {
         assert(local_ptr == nullptr || block != nullptr);
-        if (block != nullptr) Cache::get_default()->pin(get_obj());
-        check(block, local_ptr);
+        if (block != nullptr) {
+            Cache::get_default()->pin(get_obj());
+            check(block, local_ptr);
+        }
     }
 
     void unpin() const {
         assert(local_ptr == nullptr || block != nullptr);
-        if (block != nullptr) Cache::get_default()->unpin(get_obj());
-        check(block, local_ptr);
+        if (block != nullptr) {
+            Cache::get_default()->unpin(get_obj());
+            check(block, local_ptr);
+        }
     }
 };
 
